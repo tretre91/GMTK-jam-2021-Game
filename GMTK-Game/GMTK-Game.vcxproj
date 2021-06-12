@@ -159,6 +159,7 @@
     <Text Include="Levels\lvl1.txt" />
     <Text Include="Levels\lvl2.txt" />
     <Text Include="Levels\lvl3.txt" />
+    <Text Include="Levels\lvl4.txt" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Ressources\OpenSans-Regular.ttf" />

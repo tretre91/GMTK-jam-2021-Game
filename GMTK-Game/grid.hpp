@@ -24,23 +24,16 @@ enum class GameState
 
 class Grid {
 private:
-    static const my::Color robotColor1;
-    static const my::Color robotColor2;
     std::vector<std::vector<Cell>> m_grid;
-    glm::ivec2 startPosition1;
-    glm::ivec2 startPosition2;
-    Robot robot1;
-    Robot robot2;
-    Robot& currentBot;
-    Robot& otherBot;
-    bool playable = true;
+    std::vector<glm::ivec2> startingPositions;
+    std::vector<Robot> robots;
+    size_t currentRobot;
+    GameState currentState;
 
     void moveRobot(Robot& robot, Direction dir);
 
 public:
     Grid(const std::string& filename, int windowWidth, int windowHeight, int y);
-
-    Grid& operator=(const Grid& grid);
 
     GameState move(Direction dir);
 

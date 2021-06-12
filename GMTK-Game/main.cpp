@@ -39,8 +39,8 @@ int main() {
     window.setFramerate(60);
 
     my::Font open_sans("Ressources/OpenSans-Regular.ttf");
-    my::Text lost_text("You lost, Press R to restart", open_sans, 40);
-    lost_text.setPosition(0, 0);
+    my::Text lost_text("You lost, Press R to restart", open_sans, 30);
+    lost_text.setPosition(window.getSize().x / 2, 30, true);
     lost_text.setColor(my::Color::white);
 
     my::Text win_text("Level complete! Press Enter to go to the next level", open_sans, 30);
@@ -48,7 +48,7 @@ int main() {
     win_text.setColor(my::Color::white);
 
     int currentLevel = 1;
-    int max_level = 3;
+    const int max_level = 3;
     Grid grid("Levels/lvl" + std::to_string(currentLevel) + ".txt", 800, 600, window.getSize().y - 50);
     my::Text level("Level " + std::to_string(currentLevel), open_sans, 35);
     level.setPosition(5, window.getSize().y - 55);
@@ -86,6 +86,7 @@ int main() {
                     break;
                 case my::Key::r:
                     grid.restart();
+                    state = GameState::in_progress;
                     break;
                 case my::Key::enter:
                 case my::Key::np_enter:

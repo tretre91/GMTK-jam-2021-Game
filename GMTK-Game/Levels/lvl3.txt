@@ -1,9 +1,9 @@
-13 8
+13 8 2
 xxxxxxxxxxxxx
 xxxxx   xxxxx
 xxxxx x xxxxx
-xxa       1xx
+xxa       0xx
 xxxxxxxxxxxxx
-x2         bx
+x1         bx
 xxxxxx xxxxxx
 xxxxxxxxxxxxx

@@ -55,6 +55,9 @@
     <Text Include="Levels\lvl3.txt">
       <Filter>Fichiers de ressources\Levels</Filter>
     </Text>
+    <Text Include="Levels\lvl4.txt">
+      <Filter>Fichiers de ressources\Levels</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Ressources\OpenSans-Regular.ttf">

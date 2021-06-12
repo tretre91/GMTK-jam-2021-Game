@@ -3,8 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
-const my::Color Grid::robotColor1(94, 226, 73);
-const my::Color Grid::robotColor2(221, 138, 28);
+const std::array<my::Color, 2> colors{ my::Color(94, 226, 73), my::Color(221, 138, 28) };
 
 Direction opposite(Direction dir) {
     switch (dir)
@@ -45,21 +44,25 @@ void Grid::moveRobot(Robot& robot, Direction dir) {
             break;
         }
         robot.getSprite().setPosition(m_grid[robot.y][robot.x].getPosition(), true);
-    } catch (...) {
+    } catch (std::out_of_range) {
     
     }
 }
 
-Grid::Grid(const std::string& filename, int windowWidth, int windowHeight, int grid_y) : startPosition1(), startPosition2(), currentBot(robot1), otherBot(robot2) {
+Grid::Grid(const std::string& filename, int windowWidth, int windowHeight, int grid_y) : currentRobot(0), currentState(GameState::in_progress) {
     std::ifstream levelFile(filename);
     if (!levelFile.is_open()) {
         std::cerr << "Failed to open level file \"" << filename << "\"\n";
+        currentState = GameState::lost;
         return;
     }
 
     int gridWidth, gridHeight;
-    levelFile >> gridWidth >> gridHeight;
+    int nbOfRobots;
+    levelFile >> gridWidth >> gridHeight >> nbOfRobots;
     levelFile.ignore();
+    startingPositions = std::vector<glm::ivec2>(nbOfRobots);
+    robots = std::vector<Robot>(nbOfRobots);
     const int cellSize = std::min(windowWidth / gridWidth, windowHeight / gridHeight);
     
     my::Rectangle floorCell(cellSize, cellSize);
@@ -67,13 +70,13 @@ Grid::Grid(const std::string& filename, int windowWidth, int windowHeight, int g
     my::Rectangle wallCell(cellSize, cellSize);
     wallCell.setColor(43, 43, 43);
     my::Rectangle portalCell1(cellSize, cellSize);
-    portalCell1.setColor(robotColor1);
+    portalCell1.setColor(colors[0]);
     my::Rectangle portalCell2(cellSize, cellSize);
-    portalCell2.setColor(robotColor2);
+    portalCell2.setColor(colors[1]);
 
     m_grid = std::vector<std::vector<Cell>>(gridHeight);
     const float x_start = (windowWidth - gridWidth * cellSize) / 2.0f + cellSize / 2.0f;
-    float y = static_cast<float>(grid_y) - cellSize / 2;//= windowHeight - ((windowHeight - gridHeight * cellSize) / 2.0f + cellSize / 2.0f);
+    float y = static_cast<float>(grid_y) - cellSize / 2;
     float x;
 
     std::string row;
@@ -88,12 +91,6 @@ Grid::Grid(const std::string& filename, int windowWidth, int windowHeight, int g
                 m_grid[i].emplace_back(Cell(CellType::wall, wallCell, x, y));
                 break;
 
-            case ' ':
-            case '1':
-            case '2':
-                m_grid[i].emplace_back(Cell(CellType::floor, floorCell, x, y));
-                break;
-
             case 'a':
                 m_grid[i].emplace_back(Cell(CellType::portal_1, portalCell1, x, y));
                 break;
@@ -101,13 +98,15 @@ Grid::Grid(const std::string& filename, int windowWidth, int windowHeight, int g
             case 'b':
                 m_grid[i].emplace_back(Cell(CellType::portal_2, portalCell2, x, y));
                 break;
+
             default:
+                m_grid[i].emplace_back(Cell(CellType::floor, floorCell, x, y));
                 break;
             }
 
-            if (row[j] == '1') startPosition1 = { j, i };
-            else if (row[j] == '2') startPosition2 = { j, i };
-
+            if (std::isdigit(row[j])) {
+                startingPositions[static_cast<size_t>(row[j]) - '0'] = { j, i };
+            }
             x += cellSize;
         }
         y -= cellSize;
@@ -115,71 +114,62 @@ Grid::Grid(const std::string& filename, int windowWidth, int windowHeight, int g
 
     levelFile.close();
 
-    robot1 = Robot(robotColor1, cellSize, startPosition1.x, startPosition1.y);
-    robot1.getSprite().setPosition(m_grid[robot1.y][robot1.x].getPosition(), true);
-    robot2 = Robot(robotColor2, cellSize, startPosition2.x, startPosition2.y);
-    robot2.getSprite().setPosition(m_grid[robot2.y][robot2.x].getPosition(), true);
-    currentBot.getSprite().setOutlineColor(my::Color::white);
-    otherBot.getSprite().setOutlineColor(my::Color::black);
-}
-
-Grid& Grid::operator=(const Grid& grid) {
-    m_grid = grid.m_grid;
-    startPosition1 = grid.startPosition1;
-    startPosition2 = grid.startPosition2;
-    robot1 = grid.robot1;
-    robot2 = grid.robot2;
-    currentBot = robot1;
-    otherBot = otherBot;
-    playable = grid.playable;
-    return *this;
-}
-
-GameState Grid::move(Direction dir) {
-    if (playable) {
-        moveRobot(currentBot, dir);
-        moveRobot(otherBot, opposite(dir));
-        int finished = 0;
-
-        if (m_grid[robot1.y][robot1.x].getType() == CellType::portal_1) {
-            robot1.getSprite().setColor(150, 150, 150, 125);
-            finished++;
-        }
-
-        if (m_grid[robot2.y][robot2.x].getType() == CellType::portal_2) {
-            robot2.getSprite().setColor(150, 150, 150, 125);
-            finished++;
-        }
-
-        if (finished == 2) {
-            playable = false;
-            return GameState::won;
-        }
-        else if (finished == 0) {
-            return GameState::in_progress;
+    for (size_t i = 0; i < nbOfRobots; i++) {
+        robots[i] = Robot(colors[i % 2], cellSize, startingPositions[i].x, startingPositions[i].y);
+        robots[i].getSprite().setPosition(m_grid[robots[i].y][robots[i].x].getPosition(), true);
+        if (i == currentRobot) {
+            robots[i].getSprite().setOutlineColor(my::Color::white);
         } else {
-            playable = false;
-            return GameState::lost;
+            robots[i].getSprite().setOutlineColor(my::Color::black);
         }
     }
 }
 
+GameState Grid::move(Direction dir) {
+    if (currentState == GameState::in_progress) {
+        dir = currentRobot % 2 == 0 ? dir : opposite(dir);
+        int finished = 0;
+        for (size_t i = 0; i < robots.size(); i++) {
+            if (i % 2 == 0) {
+                moveRobot(robots[i], dir);
+                if (m_grid[robots[i].y][robots[i].x].getType() == CellType::portal_1) {
+                    robots[i].getSprite().setColor(150, 150, 150, 125);
+                    finished++;
+                }
+            } else {
+                moveRobot(robots[i], opposite(dir));
+                if (m_grid[robots[i].y][robots[i].x].getType() == CellType::portal_2) {
+                    robots[i].getSprite().setColor(150, 150, 150, 125);
+                    finished++;
+                }
+            }
+        }
+
+        if (finished == robots.size()) {
+            currentState = GameState::won;
+        } else if (finished == 0) {
+            currentState = GameState::in_progress;
+        } else {
+            currentState = GameState::lost;
+        }
+    }
+    return currentState;
+}
+
 void Grid::swapControl() {
-    std::swap(currentBot, otherBot);
-    currentBot.getSprite().setOutlineColor(my::Color::white);
-    otherBot.getSprite().setOutlineColor(my::Color::black);
+    robots[currentRobot].getSprite().setOutlineColor(my::Color::black);
+    currentRobot = (currentRobot + 1) % robots.size();
+    robots[currentRobot].getSprite().setOutlineColor(my::Color::white);
 }
 
 void Grid::restart() {
-    robot1.x = startPosition1.x;
-    robot1.y = startPosition1.y;
-    robot1.getSprite().setPosition(m_grid[startPosition1.y][startPosition1.x].getPosition(), true);
-    robot1.getSprite().setColor(robotColor1);
-    robot2.x = startPosition2.x;
-    robot2.y = startPosition2.y;
-    robot2.getSprite().setPosition(m_grid[startPosition2.y][startPosition2.x].getPosition(), true);
-    robot2.getSprite().setColor(robotColor2);
-    playable = true;
+    for (size_t i = 0; i < robots.size(); i++) {
+        robots[i].x = startingPositions[i].x;
+        robots[i].y = startingPositions[i].y;
+        robots[i].getSprite().setPosition(m_grid[robots[i].y][robots[i].x].getPosition(), true);
+        robots[i].getSprite().setColor(colors[i % 2]);
+    }
+    currentState = GameState::in_progress;
 }
 
 void Grid::draw(my::GLWindow& window) {
@@ -189,6 +179,7 @@ void Grid::draw(my::GLWindow& window) {
         }
     }
 
-    window.draw(robot1.getSprite());
-    window.draw(robot2.getSprite());
+    for (Robot& robot: robots) {
+        window.draw(robot.getSprite());
+    }
 }

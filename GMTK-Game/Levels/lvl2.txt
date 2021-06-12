@@ -1,10 +1,10 @@
-13 9
+13 9 2
 xxxxxxxxxxxxx
 xxxx     xxxx
 xxxx xxx xxxx
-xa   xxx   1x
+xa   xxx   0x
 xxxxxxxxxxxxx
-x2   xxx   bx
+x1   xxx   bx
 xxxx xxx xxxx
 xxxx     xxxx
 xxxxxxxxxxxxx
