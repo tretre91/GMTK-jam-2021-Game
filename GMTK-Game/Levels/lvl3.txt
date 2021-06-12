@@ -1,0 +1,9 @@
+13 8
+xxxxxxxxxxxxx
+xxxxx   xxxxx
+xxxxx x xxxxx
+xxa       1xx
+xxxxxxxxxxxxx
+x2         bx
+xxxxxx xxxxxx
+xxxxxxxxxxxxx

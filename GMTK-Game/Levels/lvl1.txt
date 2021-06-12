@@ -1,0 +1,6 @@
+10 5
+xxxxxxxxxx
+xa      1x
+xxxxxxxxxx
+x2      bx
+xxxxxxxxxx
