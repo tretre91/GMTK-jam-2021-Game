@@ -1,0 +1,9 @@
+11 8 3
+xxaxxxxxxxx
+xa0       x
+x xxx xxxbx
+x        2x
+x  xx     x
+x xxx xxxxx
+x   x   1xx
+xxxxxxxxxxx

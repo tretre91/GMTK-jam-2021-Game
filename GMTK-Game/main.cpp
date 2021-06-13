@@ -48,7 +48,7 @@ int main() {
     win_text.setColor(my::Color::white);
 
     int currentLevel = 1;
-    const int max_level = 3;
+    const int max_level = 6;
     Grid grid("Levels/lvl" + std::to_string(currentLevel) + ".txt", 800, 600, window.getSize().y - 50);
     my::Text level("Level " + std::to_string(currentLevel), open_sans, 35);
     level.setPosition(5, window.getSize().y - 55);

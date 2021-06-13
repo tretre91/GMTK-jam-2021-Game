@@ -1,0 +1,8 @@
+7 7 2
+xxxxxxx
+xa x 0x
+x b   x
+x  a  x
+x  a  x
+x1  x x
+xxxxxxx
