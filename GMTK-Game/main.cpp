@@ -56,15 +56,19 @@ bool level(int lvl, my::GLWindow& window, my::Font& font, my::Text& win_text, my
                 {
                 case my::Key::escape:
                     return false;
+                case my::Key::w:
                 case my::Key::up:
                     state = grid.move(Direction::up);
                     break;
+                case my::Key::s:
                 case my::Key::down:
                     state = grid.move(Direction::down);
                     break;
+                case my::Key::a:
                 case my::Key::left:
                     state = grid.move(Direction::left);
                     break;
+                case my::Key::d:
                 case my::Key::right:
                     state = grid.move(Direction::right);
                     break;
