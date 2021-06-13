@@ -69,5 +69,8 @@
     <Font Include="Ressources\OpenSans-Regular.ttf">
       <Filter>Fichiers de ressources\Ressources</Filter>
     </Font>
+    <Font Include="Ressources\OpenSans-SemiBold.ttf">
+      <Filter>Fichiers de ressources\Ressources</Filter>
+    </Font>
   </ItemGroup>
 </Project>
